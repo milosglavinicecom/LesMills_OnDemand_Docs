@@ -1,0 +1,648 @@
+swagger: "2.0"
+schemes:
+  - "http"
+  - "https"
+basePath: "/v1.0.0"
+info:
+  title: "LES MILLS On Demand - Club API"
+  version: "1.0.0"
+  x-logo:
+    url: "/images/lesmills-on-deman-logo.png"
+  description: |
+    The Club API is an HTTP REST API served by LES MILLS On Demand.
+    It is the API which clubs uses to communicate with the LES MILLS On Demand system.
+
+    # Authentication
+
+    Authentication for endpoints is handled client side. The client has to send authentication details to all endpoints.
+    These are sent as `Signature` header as a HASH Hmac (sha256) encoded (JSON) string contain all request body params.
+    Encoding alogorithm is **sha256**. Encoding key is **Club API Key**.
+
+    Each club has own API Key. It is used to encode signature and to identify the club in API endpoints.
+
+    All major programming languages have methods for generating hash_hmac value.
+
+    **Example (PHP):**
+
+    ```PHP
+    $requestBody = {
+      "post_param_1": "xxxx",
+      "post_param_2": "xxxx",
+      "post_param_3": "xxxx",
+      "post_param_4": "xxxx"
+    }
+
+    // In case of GET $requestBody is empty string
+
+    hash_hmac(
+      'sha256',
+      $requestBody,
+      $apiKey
+    );
+    ```
+
+    # Errors
+
+    The API uses standard HTTP status codes to indicate the success or failure of the API call. The body of the response will be JSON in the following format:
+
+    ```
+    {
+      "status": "error"
+      "message": "error message"
+      "error_code": "HTTP code"
+    }
+    ```
+
+tags:
+  - name: "Clubs"
+    x-displayName: "Clubs"
+    description: |
+      Activate and deactivate customers by the club.
+
+definitions:
+  InvalidAuthentication:
+    type: "object"
+    description: "Invalid Authentication"
+    required:
+      - "message"
+      - "status"
+      - "error_code"
+    properties:
+      message:
+        description: "Invalid authetication"
+        type: "string"
+        x-nullable: false
+      status:
+        description: "Error status"
+        type: "string"
+        x-nullable: false
+      error_code:
+        description: 400
+        type: "integer"
+        x-nullable: false
+    example:
+      status: "error"
+      message: "Invalid Authentication"
+      error_code: 400
+
+  TermsAndConditions:
+    type: "object"
+    description: "Terms & Conditions"
+    required:
+      - "status"
+      - "content"
+    properties:
+      status:
+        description: "Success status"
+        type: "string"
+      content:
+        description: "HTML content of Terms & Conditions"
+        type: "string"
+    example:
+      status: "success"
+      content: "HTML Content of Terms & Conditions"
+
+  DeactivateSuccess:
+    type: "object"
+    description: "Deactivate"
+    required:
+      - "status"
+      - "message"
+      - "customer"
+    properties:
+      status:
+        description: "Success status"
+        type: "string"
+      message:
+        description: "Customer has been deactivated successfully"
+        type: "string"
+      customer:
+        description: "Customer basic information"
+        type: "object"
+        properties:
+          id:
+            description: "LMOD customer ID"
+            type: "integer"
+          email:
+            description: "Customer email"
+            type: string
+    example:
+      status: "success"
+      message: "Customer has been deactivated successfully."
+      customer:
+        id: 617
+        email: "example@example.com"
+
+  ActivateSuccess:
+    type: "object"
+    description: "Activate"
+    required:
+      - "status"
+      - "message"
+      - "customer"
+    properties:
+      status:
+        description: "Success status"
+        type: "string"
+      message:
+        description: "Customer has been created and subscribed successfully"
+        type: "string"
+      customer:
+        description: "Customer basic information"
+        type: "object"
+        properties:
+          id:
+            description: "LMOD customer ID"
+            type: "integer"
+          email:
+            description: "Customer email"
+            type: string
+    example:
+      status: "success"
+      message: "Customer has been created and subscribed successfully."
+      customer:
+        id: 617
+        email: "example@example.com"
+
+  InvalidInputValidation:
+    type: "object"
+    description: "Invalid input validation"
+    required:
+      - "message"
+      - "status"
+      - "error_code"
+    properties:
+      message:
+        description: "Various error messages explaining input validation errors."
+        type: "string"
+        x-nullable: false
+      status:
+        description: "Error status"
+        type: "string"
+        x-nullable: false
+      error_code:
+        description: 410
+        type: "integer"
+        x-nullable: false
+    example:
+      status: "error"
+      message: "Parameter: \"email\" is required."
+      error_code: 410
+
+  CustomerIsActive:
+    type: "object"
+    description: "Customer already has active subscription"
+    required:
+    - "message"
+    - "status"
+    - "error_code"
+    properties:
+      message:
+        description: "Customer already has active subscription."
+        type: "string"
+        x-nullable: false
+      status:
+        description: "Error status"
+        type: "string"
+        x-nullable: false
+      error_code:
+        description: 411
+        type: "integer"
+        x-nullable: false
+    example:
+      status: "error"
+      message: "Customer already has active subscription."
+      error_code: 411
+
+  CustomerDisagreeTermsAndConditions:
+    type: "object"
+    description: "Customer disagree with Terms and Conditions"
+    required:
+      - "message"
+      - "status"
+      - "error_code"
+    properties:
+      message:
+        description: "Customer disagree with Terms and Conditions."
+        type: "string"
+        x-nullable: false
+      status:
+        description: "Error status"
+        type: "string"
+        x-nullable: false
+      error_code:
+        description: 412
+        type: "integer"
+        x-nullable: false
+    example:
+      status: "error"
+      message: "Customer disagree with Terms and Conditions."
+      error_code: 412
+
+  ActivateGeneralError:
+    type: "object"
+    description: "General errors during activation process"
+    required:
+    - "message"
+    - "status"
+    - "error_code"
+    properties:
+      message:
+        description: "General errors during activation process."
+        type: "string"
+        x-nullable: false
+      status:
+        description: "Error status"
+        type: "string"
+        x-nullable: false
+      error_code:
+        description: 413
+        type: "integer"
+        x-nullable: false
+    example:
+      status: "error"
+      message: "An error occurred deactivating customer subscription."
+      error_code: 413
+
+  CustomerIdIsRequired:
+    type: "object"
+    description: "Missing customer_id parameter"
+    required:
+      - "message"
+      - "status"
+      - "error_code"
+    properties:
+      message:
+        description: "Parameter: \"customer_id\" is required."
+        type: "string"
+        x-nullable: false
+      status:
+        description: "Error status"
+        type: "string"
+        x-nullable: false
+      error_code:
+        description: 410
+        type: "integer"
+        x-nullable: false
+    example:
+      status: "error"
+      message: "Parameter: \"customer_id\" is required."
+      error_code: 410
+
+  CustomerNotExist:
+    type: "object"
+    description: "Customer does not exist"
+    required:
+      - "message"
+      - "status"
+      - "error_code"
+    properties:
+      message:
+        description: "Customer does not exist."
+        type: "string"
+        x-nullable: false
+      status:
+        description: "Error status"
+        type: "string"
+        x-nullable: false
+      error_code:
+        description: 411
+        type: "integer"
+        x-nullable: false
+    example:
+      status: "error"
+      message: "Customer does not exist."
+      error_code: 411
+
+  CustomerNoActiveSubscription:
+    type: "object"
+    description: "Customer does not have active club subscription"
+    required:
+      - "message"
+      - "status"
+      - "error_code"
+    properties:
+      message:
+        description: "Customer does not have active club subscription."
+        type: "string"
+        x-nullable: false
+      status:
+        description: "Error status"
+        type: "string"
+        x-nullable: false
+      error_code:
+        description: 412
+        type: "integer"
+        x-nullable: false
+    example:
+      status: "error"
+      message: "Customer does not have active club subscription."
+      error_code: 412
+
+  CustomerCannotCancel:
+    type: "object"
+    description: "Customer subscription cannot be cancelled"
+    required:
+      - "message"
+      - "status"
+      - "error_code"
+    properties:
+      message:
+        description: "Customer subscription cannot be cancelled."
+        type: "string"
+        x-nullable: false
+      status:
+        description: "Error status"
+        type: "string"
+        x-nullable: false
+      error_code:
+        description: 413
+        type: "integer"
+        x-nullable: false
+    example:
+      status: "error"
+      message: "Customer subscription cannot be cancelled."
+      error_code: 413
+
+  CustomerSubscriptionWrongType:
+    type: "object"
+    description: "Customer subscription cannot be cancelled"
+    required:
+      - "message"
+      - "status"
+      - "error_code"
+    properties:
+      message:
+        description: "Customer subscription is of the wrong type."
+        type: "string"
+        x-nullable: false
+      status:
+        description: "Error status"
+        type: "string"
+        x-nullable: false
+      error_code:
+        description: 414
+        type: "integer"
+        x-nullable: false
+    example:
+      status: "error"
+      message: "Customer subscription is of the wrong type."
+      error_code: 414
+
+  DeactivateGeneralError:
+    type: "object"
+    description: "General errors during deactivation process"
+    required:
+    - "message"
+    - "status"
+    - "error_code"
+    properties:
+      message:
+        description: "General errors during deactivation process."
+        type: "string"
+        x-nullable: false
+      status:
+        description: "Error status"
+        type: "string"
+        x-nullable: false
+      error_code:
+        description: 415
+        type: "integer"
+        x-nullable: false
+    example:
+      status: "error"
+      message: "An error occurred deactivating customer subscription."
+      error_code: 415
+
+  CustomerAddress:
+    type: object
+    description: "Customer address"
+    required:
+      - "city"
+      - "postcode"
+      - "state"
+      - "country"
+    properties:
+      city:
+        description: "Customer's address city"
+        type: string
+      postcode:
+        description: "Customer's address postcode"
+        type: string
+      state:
+        description: |
+          Customer's address state
+
+          For US country abbreviation state codes must be used (eg. AZ, CA etc...)
+        type: string
+      country:
+        description: |
+          Customer's address country
+
+          Accept ISO ALPHA-2 country codes (eg. US, NZ etc...)
+
+paths:
+  /api/rest/crm/reseller/activate:
+    post:
+      summary: "Activate"
+      description: |
+        Activate LMOD subscription for specific customer
+
+        If customer with email does not exist system will create customer, activate it and assign it to the club.
+        System send welcome and confirmation email. API endpoint return success response.
+
+        If customer exist and is already active system will return error.
+        Staff in the club can suggest customer to cancel current subscription and try again.
+
+        If customer exist and does not have active subscription it will be activated.
+
+      produces:
+        - "application/json"
+      parameters:
+        - name: "firstname"
+          in: "query"
+          description: "Customer first name"
+          type: string
+          required: true
+        - name: "lastname"
+          in: "query"
+          description: "Customer last name"
+          type: string
+          required: true
+        - name: "email"
+          in: "query"
+          description: "Customer email"
+          type: string
+          required: true
+        - name: "password"
+          in: query
+          description: |
+            Customer password.
+
+            It is used only in case that customer does not exist.
+            If it is not sent in the request password will be generated automatically and sent in welcome email
+          type: string
+        - name: "website_id"
+          in: query
+          description: |
+            This parameter represent the country where customer will be assigned.
+
+            Allowed values are valid system store codes: [en_us, en_uk, en_nz, en_eu, en_dk, en_es]
+          type: string
+          required: true
+        - name: "toc_agree"
+          in: query
+          description: |
+            Flag which is used to determine if customer agree with Terms & Conditions or not.
+
+            Can be 0 or 1
+          type: boolean
+          required: true
+        - name: "subscribe_to_newsletter"
+          in: query
+          description: |
+            Flag to determine wether or not to subscribe customer to the LMOD newsletter
+
+            Can be 0 or 1
+          type: boolean
+          required: true
+
+        - name: "address"
+          in: query
+          description: |
+            Customer address object.
+
+
+            It is optional parameter. If it is not sent club address will be used to crate the order.
+            Club address will not be stored in customer's address book.
+
+            If it is sent it will be used to create the order. If it is new customer or if customer does not have default address it will be stored in the address book.
+
+            In case of existing customers default billing address will be used to create the order and this parameter will be ignored.
+
+          type: object
+          schema:
+            $ref: "#/definitions/CustomerAddress"
+
+#            400 - Invalid authentication
+#  410 - <Input parameters are missing or not valid> (eg. firstname is required)
+#  411 - Customer with that already exist and has active subscription
+#  412 - Customer disagree with Terms and Conditions
+#
+#
+#
+      responses:
+        200:
+          description: "No Error"
+          schema:
+            $ref: "#/definitions/ActivateSuccess"
+
+        400:
+          description: "Invalid Authentication"
+          schema:
+            $ref: "#/definitions/InvalidAuthentication"
+
+        410:
+          description: "Invalid input validation"
+          schema:
+            $ref: "#/definitions/InvalidInputValidation"
+
+        411:
+          description: "Customer already has active subscription"
+          schema:
+            $ref: "#/definitions/CustomerIsActive"
+
+        412:
+          description: "Customer does not have active club subscription"
+          schema:
+            $ref: "#/definitions/CustomerDisagreeTermsAndConditions"
+
+        413:
+          description: "General errors during activation process"
+          schema:
+            $ref: "#/definitions/ActivateGeneralError"
+
+      tags:
+        - "Clubs"
+
+  /api/rest/crm/reseller/deactivate:
+    post:
+      summary: "Deactivate"
+      description: |
+        Deactivate LMOD subscription for specific customer
+
+        Endpoint takes `customer_id` as email or LMOD customer ID and deactivate subscription.
+        If customer has active subscription assigned to that club subscription will be canceled.
+
+        If customer does not have active subscription from this club system will return error.
+      produces:
+        - "application/json"
+      parameters:
+        - name: "customer_id"
+          in: "query"
+          description: "Customer email or id"
+          type:
+            - string
+            - integer
+      responses:
+        200:
+          description: "No Error"
+          schema:
+            $ref: "#/definitions/DeactivateSuccess"
+
+        400:
+          description: "Invalid Authentication"
+          schema:
+            $ref: "#/definitions/InvalidAuthentication"
+        410:
+          description: "Missing customer_id parameter"
+          schema:
+            $ref: "#/definitions/CustomerIdIsRequired"
+
+        411:
+          description: "Customer does not exist"
+          schema:
+            $ref: "#/definitions/CustomerNotExist"
+
+        412:
+          description: "Customer does not have active club subscription"
+          schema:
+            $ref: "#/definitions/CustomerNoActiveSubscription"
+
+        413:
+          description: "Customer subscription cannot be cancelled"
+          schema:
+            $ref: "#/definitions/CustomerCannotCancel"
+
+        414:
+          description: "Customer subscription is of the wrong type"
+          schema:
+            $ref: "#/definitions/CustomerSubscriptionWrongType"
+
+        415:
+          description: "General errors during deactivation process"
+          schema:
+            $ref: "#/definitions/DeactivateGeneralError"
+      tags:
+        - "Clubs"
+
+  /api/rest/crm/reseller/terms-and-conditions:
+    get:
+      summary: "Terms & Conditions"
+      description: |
+        Get "Terms & Conditions" content to show to the customer.
+      produces:
+      - "application/json"
+      parameters:
+      responses:
+        200:
+          description: "No Error"
+          schema:
+            $ref: "#/definitions/TermsAndConditions"
+
+        400:
+          description: "Invalid Authentication"
+          schema:
+            $ref: "#/definitions/InvalidAuthentication"
+      tags:
+        - "Clubs"

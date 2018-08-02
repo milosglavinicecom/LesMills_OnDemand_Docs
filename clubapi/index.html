@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LesMills On Demand - Club API</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .sc-bRBYWo {
+            background: black;
+            padding: 20px;
+        }
+
+        .sc-esjQYD {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="redoc-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"></script>
+    <script>
+        Redoc.init('/clubapi/1.0/data.yaml', {
+            theme: {
+                colors: {
+                    primary: {
+                        main: '#00B388'
+                    }
+                },
+                menu: {
+                    level1Items: {
+                        textTransform: 'uppercase',
+                    },
+                },
+            },
+            disableSearch: true,
+            hideHostname: true,
+            suppressWarnings: true,
+            lazyRendering: true,
+            hideDownloadButton: true,
+            hideLoading: false
+
+        }, document.getElementById('redoc-container'))
+    </script>
+
+</body>
+</html>
