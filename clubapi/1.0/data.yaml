@@ -524,13 +524,6 @@ paths:
           schema:
             $ref: "#/definitions/CustomerAddress"
 
-#            400 - Invalid authentication
-#  410 - <Input parameters are missing or not valid> (eg. firstname is required)
-#  411 - Customer with that already exist and has active subscription
-#  412 - Customer disagree with Terms and Conditions
-#
-#
-#
       responses:
         200:
           description: "No Error"
